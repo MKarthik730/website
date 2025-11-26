@@ -4,3 +4,9 @@ class users(BaseModel):
     age:int
     number:str
     salary:int
+class usersupdate(Basemodel):
+    name:str
+    age:int
+    number:str
+    salary:int
+    
