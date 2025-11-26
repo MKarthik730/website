@@ -1,6 +1,6 @@
 from fastapi import FastAPI,Depends
 from fastapi import HTTPException,status
-from data import users
+from data import users,usersupdate
 from database import SessionLocal,engine
 import databasemodels
 from databasemodels import Users
@@ -63,17 +63,17 @@ def search_user(name:str, db:Session=Depends(get_db)):
         return usr_v
     return None
 @app.put("/users")
-def update_use(name:str ,age:int,number:str , salary: int ,db:Session=Depends(get_db)):
-    usr_v=db.query(Users).filter(Users.name==name).first()
+def update_use(update:usersupdate ,db:Session=Depends(get_db)):
+    usr_v=db.query(Users).filter(Users.name==update.name).first()
     if usr_v:
-        usr_v.name=name
-        usr_v.age=age
-        usr_v.number=number
-        usr_v.salary=salary
+        usr_v.name=update.name
+        usr_v.age=update.age
+        usr_v.number=update.number
+        usr_v.salary=update.salary
     else:
         raise HTTPException(status_code=404,detail="user not found")
     db.add(usr_v)
     db.commit()
     db.refresh(usr_v)
-    db.close()
+    return usr_v
 
