@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User CRUD Operations</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; }
+    section { margin-bottom: 40px; }
+    form { display: flex; flex-direction: column; gap: 8px; margin-top: 10px;}
+    label { font-weight: bold; }
+    input, button { padding: 8px; font-size: 1em; }
+    button { width: 120px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h1>User CRUD Operations</h1>
+
+  <!-- Create User -->
+  <section>
+    <h2>Create User</h2>
+    <form id="createUserForm">
+      <label>Name <input type="text" name="name" required /></label>
+      <label>Age <input type="number" name="age" required /></label>
+      <label>Number <input type="text" name="number" required /></label>
+      <label>Salary <input type="number" name="salary" required /></label>
+      <button type="submit">Add User</button>
+    </form>
+    <pre id="createUserResponse"></pre>
+  </section>
+
+  <!-- Read All Users -->
+  <section>
+    <h2>Get All Users</h2>
+    <button id="getAllUsersBtn">Fetch Users</button>
+    <pre id="getAllUsersResponse"></pre>
+  </section>
+
+  <!-- Search User by Name -->
+  <section>
+    <h2>Search User by Name</h2>
+    <form id="searchUserForm">
+      <label>Name <input type="text" name="name" required /></label>
+      <button type="submit">Search</button>
+    </form>
+    <pre id="searchUserResponse"></pre>
+  </section>
+
+  <!-- Update User -->
+  <section>
+    <h2>Update User</h2>
+    <form id="updateUserForm">
+      <label>Name (existing user) <input type="text" name="name" required /></label>
+      <label>Age <input type="number" name="age" required /></label>
+      <label>Number <input type="text" name="number" required /></label>
+      <label>Salary <input type="number" name="salary" required /></label>
+      <button type="submit">Update User</button>
+    </form>
+    <pre id="updateUserResponse"></pre>
+  </section>
+
+  <!-- Delete User -->
+  <section>
+    <h2>Delete User</h2>
+    <form id="deleteUserForm">
+      <label>User ID <input type="number" name="id" required /></label>
+      <button type="submit">Delete User</button>
+    </form>
+    <pre id="deleteUserResponse"></pre>
+  </section>
+
+<script>
+  const baseUrl = '';
+
+  // Create User
+  document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const data = {
+      name: form.name.value,
+      age: +form.age.value,
+      number: form.number.value,
+      salary: +form.salary.value
+    };
+    try {
+      const response = await fetch(baseUrl + '/users', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      document.getElementById('createUserResponse').textContent = JSON.stringify(result, null, 2);
+    } catch (err) {
+      document.getElementById('createUserResponse').textContent = 'Error: ' + err;
+    }
+  });
+
+  // Get All Users
+  document.getElementById('getAllUsersBtn').addEventListener('click', async () => {
+    try {
+      const response = await fetch(baseUrl + '/users');
+      const result = await response.json();
+      document.getElementById('getAllUsersResponse').textContent = JSON.stringify(result, null, 2);
+    } catch (err) {
+      document.getElementById('getAllUsersResponse').textContent = 'Error: ' + err;
+    }
+  });
+
+  // Search User by Name
+  document.getElementById('searchUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.name.value;
+    try {
+      const response = await fetch(baseUrl + `/users/search?name=${encodeURIComponent(name)}`);
+      if(response.status === 404) {
+        document.getElementById('searchUserResponse').textContent = 'User not found';
+      } else {
+        const data = await response.json();
+        document.getElementById('searchUserResponse').textContent = JSON.stringify(data, null, 2);
+      }
+    } catch(err) {
+      document.getElementById('searchUserResponse').textContent = 'Error: ' + err;
+    }
+  });
+
+  // Update User
+  document.getElementById('updateUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const data = {
+      name: form.name.value,
+      age: +form.age.value,
+      number: form.number.value,
+      salary: +form.salary.value
+    };
+    try {
+      const response = await fetch(baseUrl + '/users', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      if(response.status === 404) {
+        document.getElementById('updateUserResponse').textContent = 'User not found';
+      } else {
+        const result = await response.json();
+        document.getElementById('updateUserResponse').textContent = JSON.stringify(result, null, 2);
+      }
+    } catch(err) {
+      document.getElementById('updateUserResponse').textContent = 'Error: ' + err;
+    }
+  });
+
+  // Delete User
+  document.getElementById('deleteUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const id = form.id.value;
+    try {
+      const response = await fetch(baseUrl + `/users/${id}`, {
+        method: 'DELETE',
+      });
+      if(response.status === 204) {
+        document.getElementById('deleteUserResponse').textContent = 'User deleted successfully';
+      } else if(response.status === 404) {
+        document.getElementById('deleteUserResponse').textContent = 'User not found';
+      } else {
+        document.getElementById('deleteUserResponse').textContent = 'Error deleting user';
+      }
+    } catch(err) {
+      document.getElementById('deleteUserResponse').textContent = 'Error: ' + err;
+    }
+  });
+</script>
+
+</body>
+</html>
