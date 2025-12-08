@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../Desktop/web"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"iostream": "cpp",
+			"string": "cpp"
+		}
+	}
+}
