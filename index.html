@@ -55,14 +55,14 @@
       <div id="tcpResponse" class="response"></div>
     </section>
 
-    <!-- TCP Chat Terminal -->
+    <!-- TCP Chat Terminal (simulated / WebSocket echo) -->
     <section>
       <h2>💬 TCP Chat Terminal</h2>
       <div class="chat-input">
         <input id="tcpMessage" type="text" placeholder="Type message (first message = your name)" />
-        <button id="sendTcpBtn">Send to TCP</button>
+        <button id="sendTcpBtn">Send</button>
       </div>
-      <div id="tcpTerminal" class="terminal">TCP Terminal - Connect via telnet 127.0.0.1 5000</div>
+      <div id="tcpTerminal" class="terminal">TCP Terminal - use this to test WebSocket echo / simulated TCP.</div>
     </section>
 
     <!-- CRUD Operations -->
@@ -113,8 +113,6 @@
   <script>
     // Configuration
     const baseUrl = "http://127.0.0.1:8000";
-    const API_PORT = 8000;
-    const TCP_PORT = 5000;
 
     // Status Check
     async function updateStatus() {
@@ -130,21 +128,31 @@
         apiStatusEl.textContent = "🟢 Online";
         apiStatusEl.style.color = "green";
         document.getElementById("tcpClients").textContent = data.client_count ?? 0;
-        document.getElementById("onlineNames").textContent = 
+        document.getElementById("onlineNames").textContent =
           data.online_names?.length ? data.online_names.join(", ") : "None";
       } catch (e) {
-        document.getElementById("apiStatus").textContent = "🔴 Offline";
-        document.getElementById("apiStatus").style.color = "red";
+        const apiStatusEl = document.getElementById("apiStatus");
+        apiStatusEl.textContent = "🔴 Offline";
+        apiStatusEl.style.color = "red";
       }
     }
 
-    // Generic API helpers
+    // Generic API helper (handles 204 DELETE)
     async function apiRequest(endpoint, options = {}) {
       try {
         const res = await fetch(`${baseUrl}${endpoint}`, {
           ...options,
           headers: { "Content-Type": "application/json", ...options.headers }
         });
+
+        if (res.status === 204) {
+          return { success: true, message: "Success (204 No Content)" };
+        }
+
+        if (!res.ok) {
+          return { error: `HTTP ${res.status}` };
+        }
+
         return await res.json();
       } catch (e) {
         return { error: e.message };
@@ -154,7 +162,7 @@
     function showResponse(id, data) {
       const el = document.getElementById(id);
       el.textContent = JSON.stringify(data, null, 2);
-      el.className = data.error ? "response error" : "response success";
+      el.className = data && data.error ? "response error" : "response success";
     }
 
     function renderUsersTable(users) {
@@ -175,7 +183,7 @@
                 <td>${u.name}</td>
                 <td>${u.age}</td>
                 <td>${u.number}</td>
-                <td>$${u.salary}</td>
+                <td>${u.salary}</td>
                 <td>
                   <button onclick="deleteUser(${u.id})" style="padding:2px 8px;font-size:12px;">Delete</button>
                 </td>
@@ -209,7 +217,8 @@
     document.getElementById("searchUserForm").onsubmit = async (e) => {
       e.preventDefault();
       const formData = Object.fromEntries(new FormData(e.target));
-      const data = await apiRequest(`/users/search?name=${formData.name}`);
+      const name = encodeURIComponent(formData.name);
+      const data = await apiRequest(`/users/search?name=${name}`);
       showResponse("searchUserResponse", data);
     };
 
@@ -235,20 +244,30 @@
       document.getElementById("getAllUsersBtn").click();
     };
 
-    // TCP Chat (WebSocket simulation)
+    // Simple WebSocket echo using /ws
     document.getElementById("sendTcpBtn").onclick = () => {
       const msg = document.getElementById("tcpMessage").value;
-      if (msg) {
-        const terminal = document.getElementById("tcpTerminal");
-        terminal.innerHTML += `<div>> ${msg}</div>`;
+      if (!msg) return;
+
+      const terminal = document.getElementById("tcpTerminal");
+      terminal.innerHTML += `<div>> ${msg}</div>`;
+      terminal.scrollTop = terminal.scrollHeight;
+      document.getElementById("tcpMessage").value = "";
+
+      const wsUrl = `ws://127.0.0.1:8000/ws`;
+      const ws = new WebSocket(wsUrl);
+      ws.onopen = () => {
+        ws.send(msg);
+      };
+      ws.onmessage = (event) => {
+        terminal.innerHTML += `<div>${event.data}</div>`;
         terminal.scrollTop = terminal.scrollHeight;
-        document.getElementById("tcpMessage").value = "";
-        // Simulate TCP broadcast
-        setTimeout(() => {
-          terminal.innerHTML += `<div>📡 Broadcast to all TCP clients: ${msg}</div>`;
-          terminal.scrollTop = terminal.scrollHeight;
-        }, 500);
-      }
+        ws.close();
+      };
+      ws.onerror = () => {
+        terminal.innerHTML += `<div>WebSocket error</div>`;
+        terminal.scrollTop = terminal.scrollHeight;
+      };
     };
 
     // Initialize
@@ -256,7 +275,5 @@
     setInterval(updateStatus, 3000);
     document.getElementById("getAllUsersBtn").click();
   </script>
-
-  <script src="https://unpkg.com/fastapi-csrf-protect@1.0.1/dist/fastapi-csrf-protect.min.js"></script>
 </body>
 </html>
