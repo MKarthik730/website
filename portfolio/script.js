@@ -1,21 +1,4 @@
-// Mobile Navigation Toggle
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
-
-hamburger.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-    hamburger.classList.toggle('active');
-});
-
-// Close mobile menu when clicking on a link
-document.querySelectorAll('.nav-menu a').forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('active');
-        hamburger.classList.remove('active');
-    });
-});
-
-// Smooth scrolling for anchor links
+// Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -29,125 +12,148 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Animate stats on scroll
+// Animated counter for stats
+function animateCounter(element) {
+    const target = parseInt(element.getAttribute('data-target'));
+    const duration = 2000; // 2 seconds
+    const increment = target / (duration / 16); // 60fps
+    let current = 0;
+
+    const updateCounter = () => {
+        current += increment;
+        if (current < target) {
+            element.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.textContent = target;
+        }
+    };
+
+    updateCounter();
+}
+
+// Intersection Observer for animations
 const observerOptions = {
-    threshold: 0.5,
-    rootMargin: '0px'
+    threshold: 0.2,
+    rootMargin: '0px 0px -100px 0px'
 };
 
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            animateStats();
-            observer.unobserve(entry.target);
+            // Animate stat numbers
+            if (entry.target.classList.contains('stat-number')) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+            
+            // Add fade-in animation
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
         }
     });
 }, observerOptions);
 
-const statsSection = document.querySelector('.about-stats');
-if (statsSection) {
-    observer.observe(statsSection);
-}
+// Observe stat numbers
+document.querySelectorAll('.stat-number').forEach(stat => {
+    stat.style.opacity = '0';
+    stat.style.transform = 'translateY(20px)';
+    stat.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(stat);
+});
 
-function animateStats() {
-    const statNumbers = document.querySelectorAll('.stat-number');
-    
-    statNumbers.forEach(stat => {
-        const target = parseInt(stat.getAttribute('data-target'));
-        const duration = 2000;
-        const increment = target / (duration / 16);
-        let current = 0;
-        
-        const updateStat = () => {
-            current += increment;
-            if (current < target) {
-                stat.textContent = Math.floor(current);
-                requestAnimationFrame(updateStat);
-            } else {
-                stat.textContent = target;
-            }
-        };
-        
-        updateStat();
-    });
-}
+// Observe project cards for staggered animation
+document.querySelectorAll('.project-card').forEach((card, index) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+    observer.observe(card);
+});
+
+// Observe skill categories
+document.querySelectorAll('.skill-category').forEach((category, index) => {
+    category.style.opacity = '0';
+    category.style.transform = 'translateY(30px)';
+    category.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+    observer.observe(category);
+});
 
 // Navbar background on scroll
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 50) {
-        navbar.style.backgroundColor = 'rgba(13, 17, 23, 0.98)';
+        navbar.style.boxShadow = '0 4px 20px rgba(44, 62, 80, 0.1)';
     } else {
-        navbar.style.backgroundColor = 'rgba(13, 17, 23, 0.95)';
+        navbar.style.boxShadow = '0 2px 10px rgba(44, 62, 80, 0.08)';
     }
 });
 
-// Active section highlighting in navigation
+// Add active state to navigation links
 const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-menu a');
 
-function highlightNavigation() {
-    const scrollY = window.pageYOffset;
-
+window.addEventListener('scroll', () => {
+    let current = '';
     sections.forEach(section => {
-        const sectionHeight = section.offsetHeight;
-        const sectionTop = section.offsetTop - 100;
-        const sectionId = section.getAttribute('id');
-        const navLink = document.querySelector(`.nav-menu a[href="#${sectionId}"]`);
-
-        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-            if (navLink) {
-                navLink.style.color = 'var(--accent)';
-            }
-        } else {
-            if (navLink) {
-                navLink.style.color = '';
-            }
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (window.scrollY >= sectionTop - 200) {
+            current = section.getAttribute('id');
         }
     });
+
+    navLinks.forEach(link => {
+        link.style.color = '';
+        if (link.getAttribute('href').slice(1) === current) {
+            link.style.color = '#8b6f47';
+        }
+    });
+});
+
+// Prevent scroll indicator from showing on small screens
+window.addEventListener('resize', () => {
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    if (window.innerHeight < 700) {
+        scrollIndicator.style.display = 'none';
+    } else {
+        scrollIndicator.style.display = 'block';
+    }
+});
+
+// Initial check for scroll indicator
+if (window.innerHeight < 700) {
+    document.querySelector('.scroll-indicator').style.display = 'none';
 }
 
-window.addEventListener('scroll', highlightNavigation);
-
-// Add animation to project cards on scroll
-const projectObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-            setTimeout(() => {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }, index * 100);
-            projectObserver.unobserve(entry.target);
-        }
+// Add hover effect to social links
+document.querySelectorAll('.social-links a').forEach(link => {
+    link.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-4px) rotate(5deg)';
     });
-}, {
-    threshold: 0.1
-});
-
-document.querySelectorAll('.project-card').forEach(card => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    card.style.transition = 'all 0.6s ease';
-    projectObserver.observe(card);
-});
-
-// Add animation to skill categories on scroll
-const skillObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-            setTimeout(() => {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateX(0)';
-            }, index * 150);
-            skillObserver.unobserve(entry.target);
-        }
+    
+    link.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) rotate(0)';
     });
-}, {
-    threshold: 0.1
 });
 
-document.querySelectorAll('.skill-category').forEach((category, index) => {
-    category.style.opacity = '0';
-    category.style.transform = index % 2 === 0 ? 'translateX(-30px)' : 'translateX(30px)';
-    category.style.transition = 'all 0.6s ease';
-    skillObserver.observe(category);
-});
+// Add typing effect to hero tagline (optional enhancement)
+const tagline = document.querySelector('.hero-tagline');
+if (tagline) {
+    const text = tagline.textContent;
+    tagline.textContent = '';
+    tagline.style.opacity = '1';
+    
+    let i = 0;
+    const typeWriter = () => {
+        if (i < text.length) {
+            tagline.textContent += text.charAt(i);
+            i++;
+            setTimeout(typeWriter, 100);
+        }
+    };
+    
+    // Start typing after a delay
+    setTimeout(typeWriter, 1000);
+}
+
+console.log('Portfolio loaded successfully! 🚀');
