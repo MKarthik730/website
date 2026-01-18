@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse as FastAPIFileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 import os
@@ -9,25 +9,38 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import jwt
 from passlib.context import CryptContext
-
-# Local imports
 import sys
-sys.path.append('../database')
-sys.path.append('../')
+from pathlib import Path as PathlibPath
+from typing import Optional
 
-from database.database import SessionLocal, engine, Base
-from database.models import User, File as FileModel
-from .schemas import UserRegister, UserLogin, UserResponse, FileResponse, FileListResponse
+# Add parent directory to path
+sys.path.insert(0, str(PathlibPath(__file__).parent.parent))
 
-# Initialize database
-Base.metadata.create_all(bind=engine)
+from database.database import SessionLocal, engine
+from database.models import User, File as FileModel, Base
+from schemas import (
+    UserRegister, UserLogin, UserResponse, 
+    FileResponse, FileListResponse, FileUploadResponse
+)
+import uuid
 
 app = FastAPI(title="Storage Web API", version="1.0.0")
 
-# CORS middleware
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("[OK] Database tables created successfully")
+    except Exception as e:
+        print(f"[ERROR] Database initialization error: {e}")
+        import traceback
+        traceback.print_exc()
+
+# CORS middleware - Allow all for tunneling
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8501", "http://localhost:3000", "http://localhost:8000"],
+    allow_origins=["*"],  # Allow all origins for tunnel access
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,8 +53,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Upload directories
-UPLOAD_DIR = Path("./uploads")
+# Upload directories - use absolute path
+BASE_DIR = Path(__file__).resolve().parent
+UPLOAD_DIR = BASE_DIR / "uploads"
 IMAGES_DIR = UPLOAD_DIR / "images"
 DOCUMENTS_DIR = UPLOAD_DIR / "documents"
 
@@ -91,9 +105,18 @@ def get_db():
         db.close()
 
 
-def get_current_user(token: str = None, db: Session = Depends(get_db)) -> User:
-    if not token:
+def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)) -> User:
+    """Extract user from Authorization header (Bearer token)"""
+    if not authorization:
         raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    # Extract token from "Bearer <token>"
+    try:
+        scheme, token = authorization.split()
+        if scheme.lower() != "bearer":
+            raise HTTPException(status_code=401, detail="Invalid authentication scheme")
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
     
     payload = decode_token(token)
     username = payload.get("sub")
@@ -158,11 +181,10 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
 @app.post("/api/files/upload")
 def upload_file(
     file: UploadFile = File(...),
-    token: str = None,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Upload a file (image or document)"""
-    current_user = get_current_user(token, db)
     
     # Determine file type and save directory
     file_ext = file.filename.split('.')[-1].lower()
@@ -177,7 +199,7 @@ def upload_file(
         raise HTTPException(status_code=400, detail="File type not allowed")
     
     # Generate unique filename
-    file_id = str(__import__('uuid').uuid4())
+    file_id = str(uuid.uuid4())
     file_name = f"{file_id}_{file.filename}"
     file_path = save_dir / file_name
     
@@ -216,11 +238,14 @@ def upload_file(
 
 
 @app.get("/api/files", response_model=FileListResponse)
-def list_files(token: str = None, db: Session = Depends(get_db)):
+def list_files(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """List all files for current user"""
-    current_user = get_current_user(token, db)
-    
-    files = db.query(FileModel).filter(FileModel.user_id == current_user.id).order_by(desc(FileModel.uploaded_at)).all()
+    files = db.query(FileModel).filter(
+        FileModel.user_id == current_user.id
+    ).order_by(desc(FileModel.uploaded_at)).all()
     
     return {
         "total_files": len(files),
@@ -229,10 +254,12 @@ def list_files(token: str = None, db: Session = Depends(get_db)):
 
 
 @app.get("/api/files/{file_id}", response_model=FileResponse)
-def get_file_info(file_id: str, token: str = None, db: Session = Depends(get_db)):
+def get_file_info(
+    file_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """Get file information"""
-    current_user = get_current_user(token, db)
-    
     file = db.query(FileModel).filter(
         FileModel.id == file_id,
         FileModel.user_id == current_user.id
@@ -245,30 +272,65 @@ def get_file_info(file_id: str, token: str = None, db: Session = Depends(get_db)
 
 
 @app.get("/api/files/download/{file_id}")
-def download_file(file_id: str, token: str = None, db: Session = Depends(get_db)):
+def download_file(
+    file_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """Download a file"""
-    current_user = get_current_user(token, db)
-    
     file = db.query(FileModel).filter(
         FileModel.id == file_id,
         FileModel.user_id == current_user.id
     ).first()
     
-    if not file or not Path(file.file_path).exists():
-        raise HTTPException(status_code=404, detail="File not found")
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found in database")
     
-    return FileResponse(
-        path=file.file_path,
+    # ALWAYS reconstruct the path from scratch to avoid old path issues
+    filename = Path(file.file_path).name  # Get just the filename part
+    
+    # Build the absolute path based on file type
+    if file.file_type == 'image':
+        file_path = IMAGES_DIR / filename
+    elif file.file_type == 'document':
+        file_path = DOCUMENTS_DIR / filename
+    else:
+        raise HTTPException(status_code=400, detail="Invalid file type")
+    
+    # Check if file actually exists
+    if not file_path.exists():
+        # Try with old path as last resort
+        old_path = Path(file.file_path)
+        if old_path.exists():
+            file_path = old_path
+        else:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"File not found on disk. Expected at: {file_path}"
+            )
+    
+    # Update database with correct path for future use
+    if str(file_path) != file.file_path:
+        file.file_path = str(file_path)
+        try:
+            db.commit()
+        except:
+            db.rollback()  # Don't fail download if we can't update path
+    
+    return FastAPIFileResponse(
+        path=str(file_path),
         filename=file.filename,
         media_type='application/octet-stream'
     )
 
 
 @app.delete("/api/files/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_file(file_id: str, token: str = None, db: Session = Depends(get_db)):
+def delete_file(
+    file_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """Delete a file"""
-    current_user = get_current_user(token, db)
-    
     file = db.query(FileModel).filter(
         FileModel.id == file_id,
         FileModel.user_id == current_user.id
@@ -288,10 +350,12 @@ def delete_file(file_id: str, token: str = None, db: Session = Depends(get_db)):
 
 
 @app.get("/api/files/by-type/{file_type}")
-def get_files_by_type(file_type: str, token: str = None, db: Session = Depends(get_db)):
+def get_files_by_type(
+    file_type: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """Get files filtered by type (image or document)"""
-    current_user = get_current_user(token, db)
-    
     if file_type not in ['image', 'document']:
         raise HTTPException(status_code=400, detail="Invalid file type")
     
@@ -311,7 +375,7 @@ def get_files_by_type(file_type: str, token: str = None, db: Session = Depends(g
 @app.get("/api/health")
 def health_check():
     """Health check endpoint"""
-    return {"status": "ok"}
+    return {"status": "ok", "message": "API is running"}
 
 
 if __name__ == "__main__":

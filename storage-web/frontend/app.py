@@ -3,6 +3,8 @@ import requests
 import os
 from datetime import datetime
 from typing import Optional
+from PIL import Image
+import io
 
 # Page configuration
 st.set_page_config(
@@ -12,17 +14,23 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# ==================== Session State Initialization ====================
+
+# Initialize session state with defaults
+def init_session_state():
+    """Initialize all session state variables"""
+    if "token" not in st.session_state:
+        st.session_state.token = None
+    if "user_id" not in st.session_state:
+        st.session_state.user_id = None
+    if "username" not in st.session_state:
+        st.session_state.username = None
+
+# Initialize on app load
+init_session_state()
+
 # API configuration
-API_URL = "http://localhost:8000/api"
-
-# ==================== Session State ====================
-
-if "token" not in st.session_state:
-    st.session_state.token = None
-if "user_id" not in st.session_state:
-    st.session_state.user_id = None
-if "username" not in st.session_state:
-    st.session_state.username = None
+API_URL = " https://mean-cameras-thank.loca.lt"
 
 
 # ==================== Utility Functions ====================
@@ -80,12 +88,11 @@ def upload_file(uploaded_file, token: str) -> bool:
     try:
         files = {"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
         headers = {"Authorization": f"Bearer {token}"}
-        params = {"token": token}
         
         response = requests.post(
             f"{API_URL}/files/upload",
             files=files,
-            params=params
+            headers=headers
         )
         
         if response.status_code == 200:
@@ -107,8 +114,8 @@ def get_user_files(token: str, file_type: Optional[str] = None) -> list:
         else:
             url = f"{API_URL}/files"
         
-        params = {"token": token}
-        response = requests.get(url, params=params)
+        headers = {"Authorization": f"Bearer {token}"}
+        response = requests.get(url, headers=headers)
         
         if response.status_code == 200:
             data = response.json()
@@ -124,10 +131,10 @@ def get_user_files(token: str, file_type: Optional[str] = None) -> list:
 def delete_file(file_id: str, token: str) -> bool:
     """Delete a file"""
     try:
-        params = {"token": token}
+        headers = {"Authorization": f"Bearer {token}"}
         response = requests.delete(
             f"{API_URL}/files/{file_id}",
-            params=params
+            headers=headers
         )
         
         if response.status_code == 204:
@@ -144,10 +151,10 @@ def delete_file(file_id: str, token: str) -> bool:
 def download_file(file_id: str, token: str):
     """Download a file"""
     try:
-        params = {"token": token}
+        headers = {"Authorization": f"Bearer {token}"}
         response = requests.get(
             f"{API_URL}/files/download/{file_id}",
-            params=params
+            headers=headers
         )
         
         if response.status_code == 200:
@@ -222,7 +229,8 @@ def render_dashboard():
             col1, col2 = st.columns([1, 3])
             with col1:
                 if st.button("📤 Upload"):
-                    upload_file(uploaded_file, st.session_state.token)
+                    if upload_file(uploaded_file, st.session_state.token):
+                        st.rerun()
             with col2:
                 st.info(f"File: {uploaded_file.name} ({uploaded_file.size} bytes)")
     
@@ -256,20 +264,19 @@ def render_dashboard():
                     st.write(uploaded_at.strftime("%Y-%m-%d %H:%M"))
                 
                 with col4:
-                    if st.button("⬇️", key=f"download_{file['id']}"):
-                        file_content = download_file(file["id"], st.session_state.token)
-                        if file_content:
-                            st.download_button(
-                                label="Download",
-                                data=file_content,
-                                file_name=file["filename"],
-                                key=f"dl_btn_{file['id']}"
-                            )
+                    file_content = download_file(file["id"], st.session_state.token)
+                    if file_content:
+                        st.download_button(
+                            label="⬇️",
+                            data=file_content,
+                            file_name=file["filename"],
+                            key=f"dl_btn_{file['id']}"
+                        )
                 
                 with col5:
                     if st.button("🗑️", key=f"delete_{file['id']}"):
-                        delete_file(file["id"], st.session_state.token)
-                        st.rerun()
+                        if delete_file(file["id"], st.session_state.token):
+                            st.rerun()
                 
                 st.divider()
     
@@ -280,36 +287,63 @@ def render_dashboard():
         col1, col2 = st.columns(2)
         
         with col1:
-            if st.button("🖼️ Images"):
-                images = get_user_files(st.session_state.token, "image")
-                if images:
-                    for img in images:
-                        st.image(img["filename"], caption=img["filename"])
+            st.subheader("🖼️ Images")
+            images = get_user_files(st.session_state.token, "image")
+            if images:
+                for img in images:
+                    st.write(f"**{img['filename']}**")
+                    # Download and display the image
+                    file_content = download_file(img["id"], st.session_state.token)
+                    if file_content:
+                        try:
+                            image = Image.open(io.BytesIO(file_content))
+                            st.image(image, caption=img["filename"], use_column_width=True)
+                        except Exception as e:
+                            st.error(f"Could not display image: {e}")
                         st.write(f"Size: {img['file_size'] / (1024*1024):.2f} MB")
-                        if st.button("🗑️ Delete", key=f"del_img_{img['id']}"):
-                            delete_file(img["id"], st.session_state.token)
+                    if st.button("🗑️ Delete", key=f"del_img_{img['id']}"):
+                        if delete_file(img["id"], st.session_state.token):
                             st.rerun()
-                else:
-                    st.info("No images uploaded")
+                    st.divider()
+            else:
+                st.info("No images uploaded")
         
         with col2:
-            if st.button("📄 Documents"):
-                documents = get_user_files(st.session_state.token, "document")
-                if documents:
-                    for doc in documents:
-                        st.write(f"📄 {doc['filename']}")
-                        st.write(f"Size: {doc['file_size'] / (1024*1024):.2f} MB")
-                        if st.button("🗑️ Delete", key=f"del_doc_{doc['id']}"):
-                            delete_file(doc["id"], st.session_state.token)
+            st.subheader("📄 Documents")
+            documents = get_user_files(st.session_state.token, "document")
+            if documents:
+                for doc in documents:
+                    st.write(f"**📄 {doc['filename']}**")
+                    st.write(f"Size: {doc['file_size'] / (1024*1024):.2f} MB")
+                    uploaded_at = datetime.fromisoformat(doc["uploaded_at"].replace("Z", "+00:00"))
+                    st.write(f"Uploaded: {uploaded_at.strftime('%Y-%m-%d %H:%M')}")
+                    
+                    file_content = download_file(doc["id"], st.session_state.token)
+                    if file_content:
+                        st.download_button(
+                            label="⬇️ Download",
+                            data=file_content,
+                            file_name=doc["filename"],
+                            key=f"dl_doc_{doc['id']}"
+                        )
+                    
+                    if st.button("🗑️ Delete", key=f"del_doc_{doc['id']}"):
+                        if delete_file(doc["id"], st.session_state.token):
                             st.rerun()
-                else:
-                    st.info("No documents uploaded")
+                    st.divider()
+            else:
+                st.info("No documents uploaded")
 
 
 # ==================== Main App ====================
 
 def main():
-    if st.session_state.token is None:
+    """Main application entry point"""
+    # Ensure session state is initialized
+    init_session_state()
+    
+    # Check if user is logged in
+    if st.session_state.get("token") is None:
         render_auth_page()
     else:
         render_dashboard()

@@ -1,9 +1,15 @@
 from fastapi import FastAPI,Depends
 from fastapi import HTTPException,status
-from data import users, usersupdate
-from database import SessionLocal,engine
-import databasemodels
-from databasemodels import Users
+import sys
+from pathlib import Path
+
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from database.data import users, usersupdate
+from database.database import SessionLocal,engine
+from database import databasemodels
+from database.databasemodels import Users
 from sqlalchemy.orm import Session
 app=FastAPI()
 from fastapi.middleware.cors import CORSMiddleware

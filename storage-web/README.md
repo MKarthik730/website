@@ -1,103 +1,187 @@
-# Storage Web Configuration
+# Storage Web - File Management System
 
-## Database Configuration
-```
-PostgreSQL Connection String:
-postgresql://username:password@localhost:5432/storage_web
+A secure file management system built with FastAPI and Streamlit that allows users to upload, manage, and download images and documents.
 
-Steps to setup:
-1. Install PostgreSQL
-2. Create database: CREATE DATABASE storage_web;
-3. Update database.py with your credentials
-```
+## ✨ Features
 
-## Environment Variables (.env file)
-```
-DATABASE_URL=postgresql://postgres:password@localhost:5432/storage_web
-SECRET_KEY=your-secret-key-change-in-production
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
-```
+- 🔐 **User Authentication** - Secure registration and login
+- 📤 **File Upload** - Upload images and documents
+- 📁 **File Management** - View, download, and delete files
+- 🏷️ **File Filtering** - Filter by file type (images/documents)
+- 💾 **PostgreSQL Database** - Persistent storage
+- 🖼️ **Image Preview** - View uploaded images directly
+- 📊 **File Information** - See file size, upload date, and metadata
 
-## Running the Project
+## 🚀 Quick Start
 
-### 1. Install Dependencies
+### Prerequisites
+- Python 3.8 or higher
+- PostgreSQL database
+- Git (optional)
+
+### Installation
+
+1. **Clone or download this repository**
+
+2. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Setup Database
-```bash
-# Navigate to database folder
-cd database
+3. **Configure database**
+   - Make sure PostgreSQL is running
+   - Create a database named `storage-web`
+   - Update credentials in `database/database.py` if needed
 
-# The models will be created automatically when you run the backend
-```
+4. **Start the application**
 
-### 3. Start Backend (Terminal 1)
-```bash
-cd backend
-python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
+   **Option 1: Using batch files (Windows)**
+   - Double-click `start_backend.bat` to start the API server
+   - Double-click `start_frontend.bat` to start the web interface
 
-Backend will be available at: http://localhost:8000
-API Docs at: http://localhost:8000/docs
+   **Option 2: Manual start**
+   
+   Terminal 1 (Backend):
+   ```bash
+   cd backend
+   python -m uvicorn main:app --reload --port 8000
+   ```
+   
+   Terminal 2 (Frontend):
+   ```bash
+   cd frontend
+   streamlit run app.py
+   ```
 
-### 4. Start Frontend (Terminal 2)
-```bash
-cd frontend
-streamlit run app.py
-```
+5. **Access the application**
+   - Open your browser and go to: http://localhost:8501
+   - Register a new account
+   - Start uploading files!
 
-Frontend will be available at: http://localhost:8501
+## 📖 Usage Guide
 
-## API Endpoints
+### Registration & Login
+1. Open the application at http://localhost:8501
+2. Click on "Register" tab
+3. Fill in username, email, and password
+4. Click "Register" button
+5. Switch to "Login" tab and login with your credentials
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login and get access token
+### Uploading Files
+1. Go to "Upload" tab
+2. Click "Browse files" and select a file
+3. Supported formats:
+   - Images: JPG, JPEG, PNG, GIF, WEBP
+   - Documents: PDF, DOC, DOCX, TXT, XLSX, CSV
+4. Click "Upload" button
 
-### Files
-- `POST /api/files/upload` - Upload file (image or document)
-- `GET /api/files` - Get all user files
-- `GET /api/files/{file_id}` - Get file info
-- `GET /api/files/download/{file_id}` - Download file
-- `DELETE /api/files/{file_id}` - Delete file
-- `GET /api/files/by-type/{file_type}` - Filter by type (image/document)
+### Managing Files
+1. Go to "All Files" tab to see all your files
+2. Click ⬇️ to download a file
+3. Click 🗑️ to delete a file
+4. Click 🔄 to refresh the file list
 
-## Features
+### Filtering Files
+1. Go to "Filter by Type" tab
+2. Click "Images" to see all images with previews
+3. Click "Documents" to see all documents with download options
 
-✅ User Registration & Login with Password Hashing
-✅ JWT Token-based Authentication
-✅ File Upload (Images & Documents)
-✅ File Listing with Pagination
-✅ File Download
-✅ File Deletion
-✅ Filter files by type
-✅ Streamlit Web Interface
-✅ RESTful API with FastAPI
-✅ PostgreSQL Database
+## 🛠️ Technical Stack
 
-## File Types Supported
+- **Backend**: FastAPI, SQLAlchemy, PostgreSQL
+- **Frontend**: Streamlit
+- **Authentication**: JWT tokens, bcrypt password hashing
+- **File Storage**: Local filesystem with database metadata
 
-**Images:** jpg, jpeg, png, gif, webp
-**Documents:** pdf, doc, docx, txt, xlsx, csv
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 storage-web/
 ├── backend/
-│   ├── main.py           # FastAPI application
-│   └── schemas.py        # Pydantic models for validation
-├── frontend/
-│   └── app.py            # Streamlit app
+│   ├── main.py              # FastAPI application
+│   ├── schemas.py           # Pydantic models
+│   ├── uploads/             # File storage
+│   │   ├── images/          # Uploaded images
+│   │   └── documents/       # Uploaded documents
+│   └── __init__.py
 ├── database/
-│   ├── database.py       # Database connection
-│   └── models.py         # SQLAlchemy models
-├── uploads/
-│   ├── images/           # Uploaded images directory
-│   └── documents/        # Uploaded documents directory
-├── requirements.txt      # Python dependencies
-└── README.md            # This file
+│   ├── database.py          # Database configuration
+│   ├── models.py            # SQLAlchemy models
+│   └── __init__.py
+├── frontend/
+│   ├── app.py              # Streamlit UI
+│   └── __init__.py
+├── start_backend.bat        # Windows backend launcher
+├── start_frontend.bat       # Windows frontend launcher
+├── requirements.txt         # Python dependencies
+├── QUICKSTART.md           # Quick start guide
+└── README.md               # This file
 ```
+
+## 🔧 Configuration
+
+### Database
+Edit `database/database.py` to configure your database:
+```python
+db_url = "postgresql://username:password@localhost:5432/storage-web"
+```
+
+### Security
+For production, change the SECRET_KEY in `backend/main.py`:
+```python
+SECRET_KEY = "your-secure-secret-key-here"
+```
+
+## 🐛 Troubleshooting
+
+### Database Connection Error
+- Ensure PostgreSQL is running
+- Check database credentials in `database/database.py`
+- Verify database "storage-web" exists:
+  ```sql
+  CREATE DATABASE "storage-web";
+  ```
+
+### Port Already in Use
+- Backend: Change port in `start_backend.bat` or when running uvicorn
+- Frontend: Change port in `start_frontend.bat` or use `--server.port` flag
+
+### File Upload Fails
+- Check upload directories exist: `backend/uploads/images` and `backend/uploads/documents`
+- Verify write permissions on upload directories
+
+### Authentication Issues
+- Logout and login again
+- Clear browser cache
+- Check if backend server is running on port 8000
+
+## 🔒 Security Features
+
+- ✅ Password hashing with bcrypt
+- ✅ JWT token-based authentication
+- ✅ CORS protection
+- ✅ SQL injection protection via SQLAlchemy ORM
+- ✅ File type validation
+- ✅ User-specific file access control
+
+## 📝 API Documentation
+
+Once the backend is running, visit:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+## 🤝 Contributing
+
+Feel free to submit issues, fork the repository, and create pull requests!
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🙏 Acknowledgments
+
+Built with:
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [Streamlit](https://streamlit.io/)
+- [SQLAlchemy](https://www.sqlalchemy.org/)
+- [PostgreSQL](https://www.postgresql.org/)
