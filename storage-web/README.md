@@ -2,6 +2,13 @@
 
 A simple file management system built with FastAPI and Streamlit for uploading and managing images and documents.
 
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-1C1C1C?style=for-the-badge&logo=sqlalchemy&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)
+
 ## What it does
 
 - Upload images (JPG, PNG, GIF, WEBP) and documents (PDF, DOC, DOCX, TXT, XLSX, CSV)
@@ -12,10 +19,20 @@ A simple file management system built with FastAPI and Streamlit for uploading a
 
 ## Tech Stack
 
-- Backend: FastAPI
-- Frontend: Streamlit
-- Database: PostgreSQL
-- Authentication: JWT tokens
+**Backend:**
+- ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi) FastAPI
+- ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white) Python 3.8+
+
+**Frontend:**
+- ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white) Streamlit
+
+**Database:**
+- ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white) PostgreSQL
+- ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-1C1C1C?style=flat&logo=sqlalchemy&logoColor=white) SQLAlchemy
+
+**Authentication:**
+- ![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=JSON%20web%20tokens&logoColor=white) JWT Tokens
+- ![Bcrypt](https://img.shields.io/badge/Bcrypt-2A2F3D?style=flat&logo=bcrypt&logoColor=white) Bcrypt
 
 ## Setup
 
