@@ -30,7 +30,7 @@ def init_session_state():
 init_session_state()
 
 # API configuration
-API_URL = " https://mean-cameras-thank.loca.lt"
+API_URL = " https://sad-hairs-tickle.loca.lt"
 
 
 # ==================== Utility Functions ====================
@@ -39,7 +39,7 @@ def register_user(username: str, email: str, password: str) -> bool:
     """Register a new user"""
     try:
         response = requests.post(
-            f"{API_URL}/auth/register",
+            f"{API_URL}/api/auth/register",
             json={"username": username, "email": email, "password": password}
         )
         if response.status_code == 200:
@@ -57,7 +57,7 @@ def login_user(username: str, password: str) -> bool:
     """Login user"""
     try:
         response = requests.post(
-            f"{API_URL}/auth/login",
+            f"{API_URL}/api/auth/login",
             json={"username": username, "password": password}
         )
         if response.status_code == 200:
@@ -90,7 +90,7 @@ def upload_file(uploaded_file, token: str) -> bool:
         headers = {"Authorization": f"Bearer {token}"}
         
         response = requests.post(
-            f"{API_URL}/files/upload",
+            f"{API_URL}/api/files/upload",
             files=files,
             headers=headers
         )
@@ -110,9 +110,9 @@ def get_user_files(token: str, file_type: Optional[str] = None) -> list:
     """Get list of files for current user"""
     try:
         if file_type:
-            url = f"{API_URL}/files/by-type/{file_type}"
+            url = f"{API_URL}/api/files/by-type/{file_type}"
         else:
-            url = f"{API_URL}/files"
+            url = f"{API_URL}/api/files"
         
         headers = {"Authorization": f"Bearer {token}"}
         response = requests.get(url, headers=headers)
@@ -133,7 +133,7 @@ def delete_file(file_id: str, token: str) -> bool:
     try:
         headers = {"Authorization": f"Bearer {token}"}
         response = requests.delete(
-            f"{API_URL}/files/{file_id}",
+            f"{API_URL}/api/files/{file_id}",
             headers=headers
         )
         
@@ -153,7 +153,7 @@ def download_file(file_id: str, token: str):
     try:
         headers = {"Authorization": f"Bearer {token}"}
         response = requests.get(
-            f"{API_URL}/files/download/{file_id}",
+            f"{API_URL}/api/files/download/{file_id}",
             headers=headers
         )
         
