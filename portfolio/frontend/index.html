@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FastAPI + TCP Chat Server (Complete)</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f3f7; margin: 0; padding: 20px; }
+    .container { max-width: 1200px; margin: auto; background: #fff; padding: 20px 24px; border-radius: 10px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+    h1 { text-align: center; margin-bottom: 24px; color: #417cff; }
+    section { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e6f0; }
+    section:last-child { border-bottom: none; }
+    h2 { margin-bottom: 10px; font-size: 1.1rem; color: #2d3748; }
+    form { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    label { display: flex; flex-direction: column; font-size: 0.95rem; }
+    input { padding: 7px 10px; border-radius: 4px; border: 1px solid #c2cfe0; }
+    button { margin-top: 6px; padding: 8px 0; border-radius: 4px; border: none; background: #417cff; color: #fff; font-weight: 600; cursor: pointer; }
+    button:hover { background: #325ccf; }
+    .response { margin-top: 8px; padding: 8px 10px; border-radius: 4px; background: #f6f8ff; border: 1px solid #dde3f5; white-space: pre-wrap; font-size: 0.9rem; }
+    .success { background: #e6ffef; border-color: #a5e2b5; }
+    .error { background: #ffe7e7; border-color: #f3b4b4; }
+    .status-box { display: flex; gap: 12px; flex-wrap: wrap; }
+    .status-card { flex: 1 1 180px; background: #f6f8ff; border-radius: 6px; padding: 10px; border: 1px solid #dde3f5; }
+    .status-card h3 { margin: 0 0 4px 0; font-size: 0.95rem; }
+    .status-value { font-weight: 600; }
+    #usersTable { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    #usersTable th, #usersTable td { padding: 8px; text-align: left; border-bottom: 1px solid #e2e6f0; }
+    #usersTable th { background: #f6f8ff; font-weight: 600; }
+    .terminal { background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 6px; font-family: monospace; height: 200px; overflow-y: scroll; margin-top: 10px; }
+    .chat-input { display: flex; gap: 8px; margin-top: 10px; }
+    .chat-input input { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 FastAPI + TCP Chat Server</h1>
+
+    <!-- Server Status -->
+    <section>
+      <h2>📊 Server Status</h2>
+      <div class="status-box">
+        <div class="status-card">
+          <h3>API Status</h3>
+          <div id="apiStatus" class="status-value">Checking...</div>
+        </div>
+        <div class="status-card">
+          <h3>TCP Clients</h3>
+          <div id="tcpClients" class="status-value">0</div>
+        </div>
+        <div class="status-card">
+          <h3>Online Names</h3>
+          <div id="onlineNames" class="status-value">-</div>
+        </div>
+      </div>
+      <button id="checkTcpBtn">🔄 Check TCP Status</button>
+      <div id="tcpResponse" class="response"></div>
+    </section>
+
+    <!-- TCP Chat Terminal (simulated / WebSocket echo) -->
+    <section>
+      <h2>💬 TCP Chat Terminal</h2>
+      <div class="chat-input">
+        <input id="tcpMessage" type="text" placeholder="Type message (first message = your name)" />
+        <button id="sendTcpBtn">Send</button>
+      </div>
+      <div id="tcpTerminal" class="terminal">TCP Terminal - use this to test WebSocket echo / simulated TCP.</div>
+    </section>
+
+    <!-- CRUD Operations -->
+    <section>
+      <h2>👥 User Management (SQLite)</h2>
+      
+      <!-- Create User -->
+      <form id="createUserForm">
+        <label>Name <input type="text" name="name" required /></label>
+        <label>Age <input type="number" name="age" min="0" max="150" required /></label>
+        <label>Phone <input type="text" name="number" required /></label>
+        <label>Salary <input type="number" name="salary" step="0.01" min="0" required /></label>
+        <button type="submit">➕ Add User</button>
+      </form>
+      <div id="createUserResponse" class="response"></div>
+
+      <!-- Get All Users -->
+      <button id="getAllUsersBtn">📋 Show All Users</button>
+      <div id="usersTableContainer"></div>
+      <div id="getAllUsersResponse" class="response"></div>
+
+      <!-- Search User -->
+      <form id="searchUserForm">
+        <label>Name <input type="text" name="name" required /></label>
+        <button type="submit">🔍 Search User</button>
+      </form>
+      <div id="searchUserResponse" class="response"></div>
+
+      <!-- Update User -->
+      <form id="updateUserForm">
+        <label>Current Name <input type="text" name="name" required /></label>
+        <label>New Age <input type="number" name="age" min="0" max="150" required /></label>
+        <label>New Phone <input type="text" name="number" required /></label>
+        <label>New Salary <input type="number" name="salary" step="0.01" min="0" required /></label>
+        <button type="submit">🔄 Update User</button>
+      </form>
+      <div id="updateUserResponse" class="response"></div>
+
+      <!-- Delete User -->
+      <form id="deleteUserForm">
+        <label>User ID <input type="number" name="id" min="1" required /></label>
+        <button type="submit">🗑️ Delete User</button>
+      </form>
+      <div id="deleteUserResponse" class="response"></div>
+    </section>
+  </div>
+
+  <script>
+    // Configuration
+    const baseUrl = "http://127.0.0.1:8000";
+
+    // Status Check
+    async function updateStatus() {
+      try {
+        const res = await fetch(`${baseUrl}/tcp/clients`);
+        const apiStatusEl = document.getElementById("apiStatus");
+        if (!res.ok) {
+          apiStatusEl.textContent = `Offline (${res.status})`;
+          apiStatusEl.style.color = "red";
+          return;
+        }
+        const data = await res.json();
+        apiStatusEl.textContent = "🟢 Online";
+        apiStatusEl.style.color = "green";
+        document.getElementById("tcpClients").textContent = data.client_count ?? 0;
+        document.getElementById("onlineNames").textContent =
+          data.online_names?.length ? data.online_names.join(", ") : "None";
+      } catch (e) {
+        const apiStatusEl = document.getElementById("apiStatus");
+        apiStatusEl.textContent = "🔴 Offline";
+        apiStatusEl.style.color = "red";
+      }
+    }
+
+    // Generic API helper (handles 204 DELETE)
+    async function apiRequest(endpoint, options = {}) {
+      try {
+        const res = await fetch(`${baseUrl}${endpoint}`, {
+          ...options,
+          headers: { "Content-Type": "application/json", ...options.headers }
+        });
+
+        if (res.status === 204) {
+          return { success: true, message: "Success (204 No Content)" };
+        }
+
+        if (!res.ok) {
+          return { error: `HTTP ${res.status}` };
+        }
+
+        return await res.json();
+      } catch (e) {
+        return { error: e.message };
+      }
+    }
+
+    function showResponse(id, data) {
+      const el = document.getElementById(id);
+      el.textContent = JSON.stringify(data, null, 2);
+      el.className = data && data.error ? "response error" : "response success";
+    }
+
+    function renderUsersTable(users) {
+      const container = document.getElementById("usersTableContainer");
+      if (!users || users.length === 0) {
+        container.innerHTML = "<p>No users found</p>";
+        return;
+      }
+      container.innerHTML = `
+        <table id="usersTable">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Age</th><th>Phone</th><th>Salary</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            ${users.map(u => `
+              <tr>
+                <td>${u.id}</td>
+                <td>${u.name}</td>
+                <td>${u.age}</td>
+                <td>${u.number}</td>
+                <td>${u.salary}</td>
+                <td>
+                  <button onclick="deleteUser(${u.id})" style="padding:2px 8px;font-size:12px;">Delete</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // Event Handlers
+    document.getElementById("checkTcpBtn").onclick = async () => {
+      const data = await apiRequest("/tcp/clients");
+      showResponse("tcpResponse", data);
+    };
+
+    document.getElementById("createUserForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(e.target));
+      const data = await apiRequest("/users", { method: "POST", body: JSON.stringify(formData) });
+      showResponse("createUserResponse", data);
+      document.getElementById("getAllUsersBtn").click();
+    };
+
+    document.getElementById("getAllUsersBtn").onclick = async () => {
+      const data = await apiRequest("/users");
+      renderUsersTable(data);
+      showResponse("getAllUsersResponse", { count: data.length, users: data });
+    };
+
+    document.getElementById("searchUserForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(e.target));
+      const name = encodeURIComponent(formData.name);
+      const data = await apiRequest(`/users/search?name=${name}`);
+      showResponse("searchUserResponse", data);
+    };
+
+    document.getElementById("updateUserForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(e.target));
+      const data = await apiRequest("/users", { method: "PUT", body: JSON.stringify(formData) });
+      showResponse("updateUserResponse", data);
+      document.getElementById("getAllUsersBtn").click();
+    };
+
+    document.getElementById("deleteUserForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(e.target));
+      const data = await apiRequest(`/users/${formData.id}`, { method: "DELETE" });
+      showResponse("deleteUserResponse", data);
+      document.getElementById("getAllUsersBtn").click();
+    };
+
+    window.deleteUser = async (id) => {
+      const data = await apiRequest(`/users/${id}`, { method: "DELETE" });
+      showResponse("deleteUserResponse", data);
+      document.getElementById("getAllUsersBtn").click();
+    };
+
+    // Simple WebSocket echo using /ws
+    document.getElementById("sendTcpBtn").onclick = () => {
+      const msg = document.getElementById("tcpMessage").value;
+      if (!msg) return;
+
+      const terminal = document.getElementById("tcpTerminal");
+      terminal.innerHTML += `<div>> ${msg}</div>`;
+      terminal.scrollTop = terminal.scrollHeight;
+      document.getElementById("tcpMessage").value = "";
+
+      const wsUrl = `ws://127.0.0.1:8000/ws`;
+      const ws = new WebSocket(wsUrl);
+      ws.onopen = () => {
+        ws.send(msg);
+      };
+      ws.onmessage = (event) => {
+        terminal.innerHTML += `<div>${event.data}</div>`;
+        terminal.scrollTop = terminal.scrollHeight;
+        ws.close();
+      };
+      ws.onerror = () => {
+        terminal.innerHTML += `<div>WebSocket error</div>`;
+        terminal.scrollTop = terminal.scrollHeight;
+      };
+    };
+
+    // Initialize
+    updateStatus();
+    setInterval(updateStatus, 3000);
+    document.getElementById("getAllUsersBtn").click();
+  </script>
+</body>
+</html>

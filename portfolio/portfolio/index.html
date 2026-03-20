@@ -797,21 +797,21 @@
 
   <div class="hero-right">
     <div class="photo-frame">
-      <img src="profile.jpeg" alt="Karthik Motupalli"/>
+      <img src="profile.jpg" alt="Karthik Motupalli"/>
       <div class="photo-badge">VIZAG, AP · INDIA</div>
     </div>
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-num">8+</div>
+        <div class="stat-num">10</div>
         <div class="stat-label">Repos</div>
       </div>
       <div class="stat">
-        <div class="stat-num">43</div>
+        <div class="stat-num">49</div>
         <div class="stat-label">Stars</div>
       </div>
       <div class="stat">
-        <div class="stat-num">5+</div>
-        <div class="stat-label">Projects</div>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Featured</div>
       </div>
     </div>
   </div>
@@ -825,143 +825,93 @@
       <div class="skill-pill"><span class="skill-dot" style="background:#3572A5"></span>Python</div>
       <div class="skill-pill"><span class="skill-dot" style="background:#009688"></span>FastAPI</div>
       <div class="skill-pill"><span class="skill-dot" style="background:#61DAFB"></span>React</div>
+      <div class="skill-pill"><span class="skill-dot" style="background:#F7DF1E"></span>JavaScript</div>
+      <div class="skill-pill"><span class="skill-dot" style="background:#3776AB"></span>LangChain</div>
       <div class="skill-pill"><span class="skill-dot" style="background:#3178C6"></span>TypeScript</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#6929C4"></span>LangChain</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#F05032"></span>Git</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#336791"></span>PostgreSQL</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#4479A1"></span>MySQL</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#3FB37D"></span>Docker</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#FF9900"></span>AWS</div>
+      <div class="skill-pill"><span class="skill-dot" style="background:#22863A"></span>PostgreSQL</div>
+      <div class="skill-pill"><span class="skill-dot" style="background:#6DB33F"></span>Docker</div>
       <div class="skill-pill"><span class="skill-dot" style="background:#FF6F00"></span>LangGraph</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#3776AB"></span>NumPy</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#BSD-3"></span>Pandas</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#CC0000"></span>SQL</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#000000"></span>PyTorch</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#FF5733"></span>Celery</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#FFD93D"></span>Redis</div>
-      <div class="skill-pill"><span class="skill-dot" style="background:#4DB33D"></span>MongoDB</div>
+      <div class="skill-pill"><span class="skill-dot" style="background:#F05032"></span>Git</div>
+      <div class="skill-pill"><span class="skill-dot" style="background:#4479A1"></span>MySQL</div>
+      <div class="skill-pill"><span class="skill-dot" style="background:#FF9900"></span>AWS</div>
     </div>
   </div>
 </div>
 
 <section id="projects">
-  <div class="section-label">Work</div>
-  <h2 class="section-title">Featured <em>Projects</em></h2>
+  <div class="section-label">Featured Work</div>
+  <h2 class="section-title">Selected <em>Projects</em></h2>
   
   <div class="projects-grid">
     <div class="project-card featured">
       <div>
         <div class="project-header">
-          <span class="project-icon">🤖</span>
+          <span class="project-icon">🧠</span>
           <div class="project-links">
-            <a href="https://github.com/MKarthik730/mediflow" target="_blank" class="project-link">↗</a>
+            <a href="https://github.com/MKarthik730/Memoir" target="_blank" class="project-link" title="GitHub">↗</a>
           </div>
         </div>
-        <div class="project-name">MediFlow AI</div>
+        <div class="project-name">Memoir</div>
         <div class="project-desc">
-          AI-powered medical appointment routing system that intelligently matches patients 
-          with specialists using symptom analysis and provider availability. Features real-time 
-          queue management and WhatsApp integration.
+          A personal memory vault that preserves your relationships and shared experiences — 
+          with an interactive D3.js knowledge graph to visualize how people and memories connect.
         </div>
         <div class="project-tags">
           <span class="tag">FastAPI</span>
-          <span class="tag">LangChain</span>
-          <span class="tag">React</span>
           <span class="tag">PostgreSQL</span>
-          <span class="tag">Twilio</span>
+          <span class="tag">D3.js</span>
+          <span class="tag">SQLAlchemy</span>
         </div>
       </div>
       <div class="featured-visual">
-        <div class="code-line"><span class="code-num">1</span><span class="code-kw">async def</span> <span class="code-fn">route_patient</span>(symptoms, location):</div>
-        <div class="code-line"><span class="code-num">2</span>    query = <span class="code-str">f"Find specialists for {symptoms}"</span></div>
-        <div class="code-line"><span class="code-num">3</span>    result = <span class="code-kw">await</span> llm.<span class="code-fn">ainvoke</span>(query)</div>
-        <div class="code-line"><span class="code-num">4</span>    specialists = <span class="code-fn">filter_by_location</span>(result, location)</div>
-        <div class="code-line"><span class="code-num">5</span>    <span class="code-kw">return</span> <span class="code-fn">rank_by_availability</span>(specialists)</div>
-        <div class="code-line">&nbsp;</div>
-        <div class="code-line"><span class="code-cm"># Smart routing with LangGraph</span></div>
-        <div class="code-line"><span class="code-num">6</span>graph = <span class="code-fn">StateGraph</span>(MedicalState)</div>
-        <div class="code-line"><span class="code-num">7</span>graph.<span class="code-fn">add_node</span>(<span class="code-str">"analyze"</span>, analyze_symptoms)</div>
-        <div class="code-line"><span class="code-num">8</span>graph.<span class="code-fn">add_node</span>(<span class="code-str">"match"</span>, match_specialists)</div>
+        <div class="code-line"><span class="code-num">1</span><span class="code-kw">class</span> <span class="code-fn">Person</span>(Base):</div>
+        <div class="code-line"><span class="code-num">2</span>    __tablename__ = <span class="code-str">"people"</span></div>
+        <div class="code-line"><span class="code-num">3</span>    id = Column(Integer, primary_key=True)</div>
+        <div class="code-line"><span class="code-num">4</span>    name = Column(String)</div>
+        <div class="code-line"><span class="code-num">5</span>    memories = relationship(</div>
+        <div class="code-line"><span class="code-num">6</span>        <span class="code-str">"Memory"</span>, back_populates=<span class="code-str">"person"</span></div>
+        <div class="code-line"><span class="code-num">7</span>    )</div>
+        <div class="code-line"><span class="code-num">8</span><span class="code-cm"># 4 stars on GitHub</span></div>
       </div>
     </div>
 
     <div class="project-card">
       <div class="project-header">
-        <span class="project-icon">🔍</span>
+        <span class="project-icon">🌌</span>
         <div class="project-links">
-          <a href="https://github.com/MKarthik730" target="_blank" class="project-link">↗</a>
+          <a href="https://github.com/MKarthik730/void" target="_blank" class="project-link" title="GitHub">↗</a>
         </div>
       </div>
-      <div class="project-name">Device Discovery Protocol</div>
+      <div class="project-name">Void</div>
       <div class="project-desc">
-        Local network scanner that discovers devices using mDNS/DNS-SD and provides 
-        a REST API for device management with real-time status updates via WebSockets.
+        Privacy-first AI desktop assistant with glassmorphic floating UI, local LLM (Qwen2.5 3B), 
+        OCR, voice control, and deep system integration — built with PyQt6.
       </div>
       <div class="project-tags">
-        <span class="tag">Python</span>
-        <span class="tag">FastAPI</span>
-        <span class="tag">WebSockets</span>
-        <span class="tag">mDNS</span>
-      </div>
-    </div>
-
-    <div class="project-card">
-      <div class="project-header">
-        <span class="project-icon">🧠</span>
-        <div class="project-links">
-          <a href="https://github.com/MKarthik730" target="_blank" class="project-link">↗</a>
-        </div>
-      </div>
-      <div class="project-name">Memory Vault</div>
-      <div class="project-desc">
-        Local-first AI assistant with persistent memory using vector embeddings. 
-        Runs entirely offline with privacy-first architecture.
-      </div>
-      <div class="project-tags">
-        <span class="tag">LangChain</span>
+        <span class="tag">PyQt6</span>
+        <span class="tag">LangGraph</span>
         <span class="tag">Ollama</span>
-        <span class="tag">ChromaDB</span>
-        <span class="tag">Streamlit</span>
+        <span class="tag">Whisper</span>
       </div>
     </div>
 
     <div class="project-card">
       <div class="project-header">
-        <span class="project-icon">📁</span>
+        <span class="project-icon">🗺️</span>
         <div class="project-links">
-          <a href="https://github.com/MKarthik730/storage-web" target="_blank" class="project-link">↗</a>
+          <a href="https://github.com/MKarthik730/osrm" target="_blank" class="project-link" title="GitHub">↗</a>
         </div>
       </div>
-      <div class="project-name">Cloud Storage Web</div>
+      <div class="project-name">OSRM</div>
       <div class="project-desc">
-        Full-stack file storage system with multi-format support, folder organization, 
-        shareable links, and integrated media player.
+        Building applications with Open Source Routing Machine — 
+        routing, navigation, and map-based location services.
       </div>
       <div class="project-tags">
-        <span class="tag">React</span>
-        <span class="tag">FastAPI</span>
-        <span class="tag">MySQL</span>
-        <span class="tag">AWS S3</span>
-      </div>
-    </div>
-
-    <div class="project-card">
-      <div class="project-header">
-        <span class="project-icon">⚡</span>
-        <div class="project-links">
-          <a href="https://github.com/MKarthik730" target="_blank" class="project-link">↗</a>
-        </div>
-      </div>
-      <div class="project-name">Real-time Chat System</div>
-      <div class="project-desc">
-        Scalable messaging platform with WebSocket support, presence indicators, 
-        emoji reactions, and message threading.
-      </div>
-      <div class="project-tags">
-        <span class="tag">FastAPI</span>
-        <span class="tag">WebSockets</span>
-        <span class="tag">Redis</span>
-        <span class="tag">PostgreSQL</span>
+        <span class="tag">OSRM</span>
+        <span class="tag">Python</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">Maps</span>
       </div>
     </div>
   </div>
@@ -975,108 +925,87 @@
     <div class="timeline">
       <div class="timeline-item visible">
         <div class="timeline-dot"></div>
-        <div class="timeline-date">2022 — Present</div>
+        <div class="timeline-date">2024 — 2028</div>
         <div class="timeline-title">B.Tech Computer Science</div>
-        <div class="timeline-sub">Anil Neerukonda Institute of Technology & Science (ANITS), Vizag. Focused on AI/ML and full-stack development.</div>
+        <div class="timeline-sub">Anil Neerukonda Institute of Technology & Science (ANITS), Vizag</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">2022 — 2024</div>
+        <div class="timeline-title">Intermediate Education</div>
+        <div class="timeline-sub">MPC Focus — Strong foundation in mathematics and problem-solving</div>
       </div>
       <div class="timeline-item">
         <div class="timeline-dot"></div>
         <div class="timeline-date">2022</div>
-        <div class="timeline-title">Intermediate Education</div>
-        <div class="timeline-sub">Completed intermediate with strong foundation in mathematics and computer science.</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2020</div>
         <div class="timeline-title">High School</div>
-        <div class="timeline-sub">Built first projects and discovered passion for software development.</div>
+        <div class="timeline-sub">Built first programs and discovered passion for software development</div>
       </div>
     </div>
 
-    <div class="interests-list">
-      <div class="interest-item">
-        <span class="interest-emoji">🤖</span>
-        Building AI agents with LangChain & LangGraph
-      </div>
-      <div class="interest-item">
-        <span class="interest-emoji">🔧</span>
-        Developer tools & productivity automation
-      </div>
-      <div class="interest-item">
-        <span class="interest-emoji">📱</span>
-        Full-stack web development
-      </div>
-      <div class="interest-item">
-        <span class="interest-emoji">☕</span>
-        Coffee & clean code
-      </div>
-      <div class="interest-item">
-        <span class="interest-emoji">🎮</span>
-        Gaming & tech exploration
+    <div>
+      <div class="interests-list">
+        <div class="interest-item">
+          <span class="interest-emoji">🤖</span>
+          <span>Building AI systems that actually help people</span>
+        </div>
+        <div class="interest-item">
+          <span class="interest-emoji">🔧</span>
+          <span>Creating tools that solve real problems</span>
+        </div>
+        <div class="interest-item">
+          <span class="interest-emoji">📚</span>
+          <span>Constantly learning and experimenting with new tech</span>
+        </div>
+        <div class="interest-item">
+          <span class="interest-emoji">☕</span>
+          <span>Coffee-powered debugging sessions</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="contact-section" id="contact">
+<section class="contact-section" id="contact">
   <div class="contact-inner">
     <div>
-      <div class="section-label">Get in Touch</div>
+      <div class="section-label">Get In Touch</div>
       <h2 class="section-title">Let's <em>Connect</em></h2>
       <p class="contact-text">
-        I'm always interested in new opportunities, collaborations, or just chatting about 
-        technology. Feel free to reach out!
+        I'm always open to discussing new projects, creative ideas, 
+        or opportunities to be part of your vision. Drop me a message!
       </p>
     </div>
     <div class="contact-links">
-      <a href="mailto:karthikmotupalli@gmail.com" class="contact-link">
+      <a href="mailto:karthik.motupalli@example.com" class="contact-link">
         <div class="contact-link-icon">✉</div>
         <div class="contact-link-info">
           <span class="contact-link-label">Email</span>
-          karthikmotupalli@gmail.com
+          <span>karthikmotupalli730@gmail.com</span>
         </div>
       </a>
       <a href="https://github.com/MKarthik730" target="_blank" class="contact-link">
-        <div class="contact-link-icon">⌘</div>
+        <div class="contact-link-icon">⌥</div>
         <div class="contact-link-info">
           <span class="contact-link-label">GitHub</span>
-          @MKarthik730
+          <span>@MKarthik730</span>
         </div>
       </a>
       <a href="https://www.linkedin.com/in/karthik-motupalli-0b6951318" target="_blank" class="contact-link">
         <div class="contact-link-icon">in</div>
         <div class="contact-link-info">
           <span class="contact-link-label">LinkedIn</span>
-          Karthik Motupalli
+          <span>Karthik Motupalli</span>
         </div>
       </a>
     </div>
   </div>
-</div>
+</section>
 
 <footer>
   <span>© 2026 Karthik Motupalli</span>
-  <span>Built with passion in Vizag</span>
+  <span>Built with passion · Vizag, India</span>
 </footer>
-
-<script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.timeline-item, .reveal').forEach(el => observer.observe(el));
-
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      e.preventDefault();
-      document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-</script>
 
 </body>
 </html>
