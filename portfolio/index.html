@@ -802,16 +802,16 @@
     </div>
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-num">8+</div>
+        <div class="stat-num">10</div>
         <div class="stat-label">Repos</div>
       </div>
       <div class="stat">
-        <div class="stat-num">43</div>
+        <div class="stat-num">49</div>
         <div class="stat-label">Stars</div>
       </div>
       <div class="stat">
-        <div class="stat-num">5+</div>
-        <div class="stat-label">Projects</div>
+        <div class="stat-num">4</div>
+        <div class="stat-label">Featured</div>
       </div>
     </div>
   </div>
@@ -852,56 +852,33 @@
     <div class="project-card featured">
       <div>
         <div class="project-header">
-          <span class="project-icon">🤖</span>
+          <span class="project-icon">🌌</span>
           <div class="project-links">
-            <a href="https://github.com/MKarthik730/mediflow" target="_blank" class="project-link">↗</a>
+            <a href="https://github.com/MKarthik730/void" target="_blank" class="project-link">↗</a>
           </div>
         </div>
-        <div class="project-name">MediFlow AI</div>
+        <div class="project-name">Void</div>
         <div class="project-desc">
-          AI-powered medical appointment routing system that intelligently matches patients 
-          with specialists using symptom analysis and provider availability. Features real-time 
-          queue management and WhatsApp integration.
+          Privacy-first AI desktop assistant with a glassmorphic floating UI, local LLM (Qwen2.5 3B), 
+          OCR, voice control, and deep system integration — built with PyQt6.
         </div>
         <div class="project-tags">
-          <span class="tag">FastAPI</span>
-          <span class="tag">LangChain</span>
-          <span class="tag">React</span>
-          <span class="tag">PostgreSQL</span>
-          <span class="tag">Twilio</span>
+          <span class="tag">PyQt6</span>
+          <span class="tag">LangGraph</span>
+          <span class="tag">Ollama</span>
+          <span class="tag">Whisper</span>
         </div>
       </div>
       <div class="featured-visual">
-        <div class="code-line"><span class="code-num">1</span><span class="code-kw">async def</span> <span class="code-fn">route_patient</span>(symptoms, location):</div>
-        <div class="code-line"><span class="code-num">2</span>    query = <span class="code-str">f"Find specialists for {symptoms}"</span></div>
-        <div class="code-line"><span class="code-num">3</span>    result = <span class="code-kw">await</span> llm.<span class="code-fn">ainvoke</span>(query)</div>
-        <div class="code-line"><span class="code-num">4</span>    specialists = <span class="code-fn">filter_by_location</span>(result, location)</div>
-        <div class="code-line"><span class="code-num">5</span>    <span class="code-kw">return</span> <span class="code-fn">rank_by_availability</span>(specialists)</div>
+        <div class="code-line"><span class="code-num">1</span><span class="code-kw">from</span> PyQt6.<span class="code-fn">QtWidgets</span> <span class="code-kw">import</span> QMainWindow</div>
+        <div class="code-line"><span class="code-num">2</span><span class="code-kw">from</span> ollama <span class="code-kw">import</span> <span class="code-fn">chat</span></div>
+        <div class="code-line"><span class="code-num">3</span>&nbsp;</div>
+        <div class="code-line"><span class="code-num">4</span>response = <span class="code-kw">await</span> <span class="code-fn">chat</span>(</div>
+        <div class="code-line"><span class="code-num">5</span>    model=<span class="code-str">'qwen2.5:3b'</span>,</div>
+        <div class="code-line"><span class="code-num">6</span>    messages=[{<span class="code-str">'role'</span>: <span class="code-str">'user'</span>, <span class="code-str">'content'</span>: msg}]</div>
+        <div class="code-line"><span class="code-num">7</span>)</div>
         <div class="code-line">&nbsp;</div>
-        <div class="code-line"><span class="code-cm"># Smart routing with LangGraph</span></div>
-        <div class="code-line"><span class="code-num">6</span>graph = <span class="code-fn">StateGraph</span>(MedicalState)</div>
-        <div class="code-line"><span class="code-num">7</span>graph.<span class="code-fn">add_node</span>(<span class="code-str">"analyze"</span>, analyze_symptoms)</div>
-        <div class="code-line"><span class="code-num">8</span>graph.<span class="code-fn">add_node</span>(<span class="code-str">"match"</span>, match_specialists)</div>
-      </div>
-    </div>
-
-    <div class="project-card">
-      <div class="project-header">
-        <span class="project-icon">🔍</span>
-        <div class="project-links">
-          <a href="https://github.com/MKarthik730" target="_blank" class="project-link">↗</a>
-        </div>
-      </div>
-      <div class="project-name">Device Discovery Protocol</div>
-      <div class="project-desc">
-        Local network scanner that discovers devices using mDNS/DNS-SD and provides 
-        a REST API for device management with real-time status updates via WebSockets.
-      </div>
-      <div class="project-tags">
-        <span class="tag">Python</span>
-        <span class="tag">FastAPI</span>
-        <span class="tag">WebSockets</span>
-        <span class="tag">mDNS</span>
+        <div class="code-cm"># Local LLM · Privacy First · Offline</div>
       </div>
     </div>
 
@@ -909,19 +886,59 @@
       <div class="project-header">
         <span class="project-icon">🧠</span>
         <div class="project-links">
-          <a href="https://github.com/MKarthik730" target="_blank" class="project-link">↗</a>
+          <a href="https://github.com/MKarthik730/Memoir" target="_blank" class="project-link">↗</a>
         </div>
       </div>
-      <div class="project-name">Memory Vault</div>
+      <div class="project-name">Memoir</div>
       <div class="project-desc">
-        Local-first AI assistant with persistent memory using vector embeddings. 
-        Runs entirely offline with privacy-first architecture.
+        Web application that helps you preserve and visualize your personal relationships 
+        and shared memories. Store photos, audio notes, and text about the people in your life.
       </div>
       <div class="project-tags">
-        <span class="tag">LangChain</span>
-        <span class="tag">Ollama</span>
-        <span class="tag">ChromaDB</span>
-        <span class="tag">Streamlit</span>
+        <span class="tag">HTML</span>
+        <span class="tag">D3.js</span>
+        <span class="tag">Python</span>
+        <span class="tag">SQLAlchemy</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-header">
+        <span class="project-icon">🗺️</span>
+        <div class="project-links">
+          <a href="https://github.com/MKarthik730/osrm" target="_blank" class="project-link">↗</a>
+        </div>
+      </div>
+      <div class="project-name">OSRM</div>
+      <div class="project-desc">
+        Building applications with Open Source Routing Machine — routing, navigation, 
+        and map-based location services.
+      </div>
+      <div class="project-tags">
+        <span class="tag">OSRM</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">Python</span>
+        <span class="tag">Maps</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-header">
+        <span class="project-icon">🔨</span>
+        <div class="project-links">
+          <a href="https://github.com/MKarthik730/RandomForge" target="_blank" class="project-link">↗</a>
+        </div>
+      </div>
+      <div class="project-name">RandomForge</div>
+      <div class="project-desc">
+        Learning web technology — a collection of projects exploring modern web development, 
+        APIs, and full-stack applications.
+      </div>
+      <div class="project-tags">
+        <span class="tag">Python</span>
+        <span class="tag">FastAPI</span>
+        <span class="tag">React</span>
+        <span class="tag">MySQL</span>
       </div>
     </div>
 
@@ -942,26 +959,6 @@
         <span class="tag">FastAPI</span>
         <span class="tag">MySQL</span>
         <span class="tag">AWS S3</span>
-      </div>
-    </div>
-
-    <div class="project-card">
-      <div class="project-header">
-        <span class="project-icon">⚡</span>
-        <div class="project-links">
-          <a href="https://github.com/MKarthik730" target="_blank" class="project-link">↗</a>
-        </div>
-      </div>
-      <div class="project-name">Real-time Chat System</div>
-      <div class="project-desc">
-        Scalable messaging platform with WebSocket support, presence indicators, 
-        emoji reactions, and message threading.
-      </div>
-      <div class="project-tags">
-        <span class="tag">FastAPI</span>
-        <span class="tag">WebSockets</span>
-        <span class="tag">Redis</span>
-        <span class="tag">PostgreSQL</span>
       </div>
     </div>
   </div>
